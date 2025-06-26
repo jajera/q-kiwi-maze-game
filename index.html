@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiwi Maze Escape</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>🥝 Kiwi Maze Escape</h1>
+            <p class="instructions">Use arrow keys to guide the kiwi bird to the goal!</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="moves-counter">Moves: <span id="moveCount">0</span></div>
+            <button id="newGameBtn" class="new-game-btn">New Game</button>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas 
+                id="gameCanvas" 
+                width="480" 
+                height="480"
+                role="application"
+                aria-label="Maze game - Use arrow keys to move the kiwi bird to the goal"
+                tabindex="0">
+                Your browser does not support the HTML5 canvas element.
+            </canvas>
+        </div>
+        
+        <div id="winMessage" class="win-message hidden">
+            <h2>🎉 Congratulations!</h2>
+            <p>You helped the kiwi reach the goal!</p>
+            <p>Moves taken: <span id="finalMoves">0</span></p>
+            <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+        </div>
+        
+        <div class="game-controls">
+            <p><strong>Controls:</strong></p>
+            <div class="control-grid">
+                <div></div>
+                <div class="key">↑</div>
+                <div></div>
+                <div class="key">←</div>
+                <div class="key">↓</div>
+                <div class="key">→</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

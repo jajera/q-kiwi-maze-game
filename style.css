@@ -1,0 +1,200 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+}
+
+header h1 {
+    color: #2E8B57;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.instructions {
+    color: #556B2F;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.moves-counter {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2E8B57;
+}
+
+.new-game-btn, .play-again-btn {
+    background: linear-gradient(45deg, #32CD32, #228B22);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+}
+
+.new-game-btn:hover, .play-again-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(50, 205, 50, 0.4);
+}
+
+.new-game-btn:active, .play-again-btn:active {
+    transform: translateY(0);
+}
+
+.canvas-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+#gameCanvas {
+    border: 4px solid #8B4513;
+    border-radius: 10px;
+    background: #F5F5DC;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+#gameCanvas:focus {
+    outline: 3px solid #32CD32;
+    outline-offset: 2px;
+}
+
+.win-message {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+    animation: celebration 0.6s ease-out;
+}
+
+.win-message h2 {
+    color: #8B4513;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.win-message p {
+    color: #A0522D;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-controls {
+    margin-top: 20px;
+    color: #556B2F;
+}
+
+.game-controls p {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    max-width: 150px;
+    margin: 0 auto;
+}
+
+.key {
+    background: #F0F8FF;
+    border: 2px solid #B0C4DE;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2E8B57;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes celebration {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .game-container {
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    #gameCanvas {
+        max-width: 320px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+}
