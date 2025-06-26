@@ -1,6 +1,6 @@
 /**
  * Kiwi Maze Escape Game
- * A browser-based maze game where players guide a kiwi bird to the goal
+ * A browser-based maze game where players guide a kiwi fruit to the goal
  */
 
 class KiwiMazeGame {
@@ -85,36 +85,40 @@ class KiwiMazeGame {
     
     /**
      * Generate a maze ensuring the goal is always reachable
+     * Uses improved recursive backtracking with better connectivity
      */
     generateMaze() {
         // Initialize maze with walls (1) and paths (0)
         this.maze = Array(this.GRID_SIZE).fill().map(() => Array(this.GRID_SIZE).fill(1));
         
-        // Generate maze using recursive backtracking for guaranteed solution
+        // Generate maze using improved recursive backtracking
         this.generateMazeRecursive();
         
         // Ensure start and goal positions are clear
         this.maze[this.player.y][this.player.x] = 0;
         this.maze[this.goal.y][this.goal.x] = 0;
         
-        // Verify path exists, if not regenerate
-        if (!this.hasPathToGoal()) {
-            this.createSimplePath();
-        }
+        // Always ensure a guaranteed path exists
+        this.ensurePathToGoal();
         
         // Add some additional paths for more interesting gameplay
         this.addExtraPaths();
+        
+        // Final verification - if still no path, create direct path
+        if (!this.hasPathToGoal()) {
+            this.createDirectPath();
+        }
     }
     
     /**
-     * Generate maze using recursive backtracking algorithm
-     * This ensures a connected maze with guaranteed solution
+     * Generate maze using improved recursive backtracking algorithm
+     * This ensures a more connected maze with guaranteed solution
      */
     generateMazeRecursive() {
         const visited = Array(this.GRID_SIZE).fill().map(() => Array(this.GRID_SIZE).fill(false));
         const stack = [];
         
-        // Start from position (1,1)
+        // Start from position (1,1) - always odd coordinates for proper maze generation
         let currentX = 1;
         let currentY = 1;
         this.maze[currentY][currentX] = 0;
@@ -128,7 +132,7 @@ class KiwiMazeGame {
         ];
         
         while (true) {
-            // Get unvisited neighbors
+            // Get unvisited neighbors (2 cells away to maintain wall structure)
             const neighbors = [];
             
             for (const dir of directions) {
@@ -146,7 +150,7 @@ class KiwiMazeGame {
                 // Choose random neighbor
                 const next = neighbors[Math.floor(Math.random() * neighbors.length)];
                 
-                // Remove wall between current and next
+                // Remove wall between current and next cell
                 const wallX = currentX + next.dir.x / 2;
                 const wallY = currentY + next.dir.y / 2;
                 
@@ -167,6 +171,9 @@ class KiwiMazeGame {
                 break;
             }
         }
+        
+        // Add some random openings to make maze less predictable
+        this.addRandomOpenings();
     }
     
     /**
@@ -205,23 +212,144 @@ class KiwiMazeGame {
     }
     
     /**
-     * Create a simple guaranteed path from start to goal
+     * Add random openings to make the maze more interesting
      */
-    createSimplePath() {
-        // Create a direct path with some turns
+    addRandomOpenings() {
+        const numOpenings = Math.floor(Math.random() * 4) + 2;
+        
+        for (let i = 0; i < numOpenings; i++) {
+            const x = Math.floor(Math.random() * (this.GRID_SIZE - 2)) + 1;
+            const y = Math.floor(Math.random() * (this.GRID_SIZE - 2)) + 1;
+            
+            // Only create opening if it connects two path areas
+            if (this.maze[y][x] === 1) {
+                const neighbors = [
+                    { x: x, y: y - 1 }, { x: x + 1, y: y },
+                    { x: x, y: y + 1 }, { x: x - 1, y: y }
+                ];
+                
+                const pathNeighbors = neighbors.filter(n => 
+                    n.x >= 0 && n.x < this.GRID_SIZE && 
+                    n.y >= 0 && n.y < this.GRID_SIZE && 
+                    this.maze[n.y][n.x] === 0
+                );
+                
+                if (pathNeighbors.length >= 2) {
+                    this.maze[y][x] = 0;
+                }
+            }
+        }
+    }
+
+    /**
+     * Ensure there's always a path from start to goal using A* pathfinding
+     */
+    ensurePathToGoal() {
+        if (!this.hasPathToGoal()) {
+            // Create a path using A* algorithm to find optimal route
+            const path = this.findPathAStar(this.player, this.goal);
+            
+            if (path.length === 0) {
+                // If A* fails, create a simple guaranteed path
+                this.createDirectPath();
+            } else {
+                // Clear the path found by A*
+                for (const point of path) {
+                    this.maze[point.y][point.x] = 0;
+                }
+            }
+        }
+    }
+
+    /**
+     * Find path using A* algorithm
+     */
+    findPathAStar(start, goal) {
+        const openSet = [start];
+        const cameFrom = new Map();
+        const gScore = new Map();
+        const fScore = new Map();
+        
+        const getKey = (point) => `${point.x},${point.y}`;
+        const heuristic = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+        
+        gScore.set(getKey(start), 0);
+        fScore.set(getKey(start), heuristic(start, goal));
+        
+        while (openSet.length > 0) {
+            // Find node with lowest fScore
+            let current = openSet[0];
+            let currentIndex = 0;
+            
+            for (let i = 1; i < openSet.length; i++) {
+                if (fScore.get(getKey(openSet[i])) < fScore.get(getKey(current))) {
+                    current = openSet[i];
+                    currentIndex = i;
+                }
+            }
+            
+            if (current.x === goal.x && current.y === goal.y) {
+                // Reconstruct path
+                const path = [];
+                let temp = current;
+                
+                while (temp) {
+                    path.unshift(temp);
+                    temp = cameFrom.get(getKey(temp));
+                }
+                
+                return path;
+            }
+            
+            openSet.splice(currentIndex, 1);
+            
+            const neighbors = [
+                { x: current.x, y: current.y - 1 },
+                { x: current.x + 1, y: current.y },
+                { x: current.x, y: current.y + 1 },
+                { x: current.x - 1, y: current.y }
+            ];
+            
+            for (const neighbor of neighbors) {
+                if (neighbor.x < 0 || neighbor.x >= this.GRID_SIZE ||
+                    neighbor.y < 0 || neighbor.y >= this.GRID_SIZE) {
+                    continue;
+                }
+                
+                const tentativeGScore = gScore.get(getKey(current)) + 1;
+                const neighborKey = getKey(neighbor);
+                
+                if (!gScore.has(neighborKey) || tentativeGScore < gScore.get(neighborKey)) {
+                    cameFrom.set(neighborKey, current);
+                    gScore.set(neighborKey, tentativeGScore);
+                    fScore.set(neighborKey, tentativeGScore + heuristic(neighbor, goal));
+                    
+                    if (!openSet.some(p => p.x === neighbor.x && p.y === neighbor.y)) {
+                        openSet.push(neighbor);
+                    }
+                }
+            }
+        }
+        
+        return []; // No path found
+    }
+
+    /**
+     * Create a direct path from start to goal as fallback
+     */
+    createDirectPath() {
         let x = this.player.x;
         let y = this.player.y;
         
-        // Move right towards goal
-        while (x < this.goal.x) {
+        // Create L-shaped path: horizontal first, then vertical
+        while (x !== this.goal.x) {
             this.maze[y][x] = 0;
-            x++;
+            x += (this.goal.x > x) ? 1 : -1;
         }
         
-        // Move down towards goal
-        while (y < this.goal.y) {
+        while (y !== this.goal.y) {
             this.maze[y][x] = 0;
-            y++;
+            y += (this.goal.y > y) ? 1 : -1;
         }
         
         // Ensure goal is reachable
@@ -229,28 +357,50 @@ class KiwiMazeGame {
     }
     
     /**
-     * Add extra paths to make the maze more interesting
+     * Add extra paths to make the maze more interesting and provide multiple routes
      */
     addExtraPaths() {
-        const numExtraPaths = Math.floor(Math.random() * 8) + 4;
+        const numExtraPaths = Math.floor(Math.random() * 6) + 3;
         
         for (let i = 0; i < numExtraPaths; i++) {
-            const x = Math.floor(Math.random() * (this.GRID_SIZE - 2)) + 1;
-            const y = Math.floor(Math.random() * (this.GRID_SIZE - 2)) + 1;
+            const x = Math.floor(Math.random() * (this.GRID_SIZE - 4)) + 2;
+            const y = Math.floor(Math.random() * (this.GRID_SIZE - 4)) + 2;
             
-            // Create small path segments
+            // Create small path segments that connect existing paths
             if (Math.random() > 0.5) {
-                // Horizontal path
-                for (let j = 0; j < 3 && x + j < this.GRID_SIZE - 1; j++) {
-                    this.maze[y][x + j] = 0;
+                // Horizontal path segment
+                const length = Math.floor(Math.random() * 3) + 2;
+                for (let j = 0; j < length && x + j < this.GRID_SIZE - 1; j++) {
+                    if (this.hasAdjacentPath(x + j, y)) {
+                        this.maze[y][x + j] = 0;
+                    }
                 }
             } else {
-                // Vertical path
-                for (let j = 0; j < 3 && y + j < this.GRID_SIZE - 1; j++) {
-                    this.maze[y + j][x] = 0;
+                // Vertical path segment
+                const length = Math.floor(Math.random() * 3) + 2;
+                for (let j = 0; j < length && y + j < this.GRID_SIZE - 1; j++) {
+                    if (this.hasAdjacentPath(x, y + j)) {
+                        this.maze[y + j][x] = 0;
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Check if a position has adjacent paths (used for connecting path segments)
+     */
+    hasAdjacentPath(x, y) {
+        const neighbors = [
+            { x: x, y: y - 1 }, { x: x + 1, y: y },
+            { x: x, y: y + 1 }, { x: x - 1, y: y }
+        ];
+        
+        return neighbors.some(n => 
+            n.x >= 0 && n.x < this.GRID_SIZE && 
+            n.y >= 0 && n.y < this.GRID_SIZE && 
+            this.maze[n.y][n.x] === 0
+        );
     }
     
     /**
@@ -468,7 +618,7 @@ class KiwiMazeGame {
     }
     
     /**
-     * Draw the player (kiwi bird)
+     * Draw the player (kiwi fruit)
      */
     drawPlayer() {
         const playerX = this.player.x * this.CELL_SIZE;
