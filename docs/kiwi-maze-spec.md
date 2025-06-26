@@ -1,12 +1,12 @@
 # Kiwi Maze Escape – Game Specification
 
-Create a simple HTML5 browser game where a kiwi bird navigates a maze using arrow keys. This game must run fully in-browser with no backend and be compatible with GitHub Pages.
+Create a simple HTML5 browser game where a kiwi fruit navigates a maze using arrow keys. This game must run fully in-browser with no backend and be compatible with GitHub Pages.
 
 ---
 
 ## 🎮 Game Description
 
-Design a maze game where the player controls a kiwi bird using the keyboard to reach a goal tile. The game should render using the HTML5 canvas API and work in all modern browsers without requiring any dependencies.
+Design a maze game where the player controls a kiwi fruit using the keyboard to reach a goal tile. The game should render using the HTML5 canvas API and work in all modern browsers without requiring any dependencies.
 
 ---
 
